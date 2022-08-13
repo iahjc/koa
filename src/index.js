@@ -1,53 +1,37 @@
-const Koa = require('koa')
-const Router = require('koa-router')
-const cors = require('@koa/cors')
-const koaBody = require('koa-body')
-const json = require('koa-json')
+import Koa from 'koa'
+import path from 'path'
+import helmet from 'koa-helmet'
+import statics from 'koa-static'
+import router from './routes/routes'
+import cors from '@koa/cors'
+import jsonUtil from 'koa-json'
+import koaBody from 'koa-body'
+import compose from 'koa-compose'
+import compress from 'koa-compress'
 
 const app = new Koa()
-const router = new Router()
 
-// 添加访问前缀
-router.prefix('/api')
+// app.use(helmet)
+// app.use(statics(path.join(__dirname, '../public')))
+// app.use(router())
 
-
-router.get('/', ctx => {
-    ctx.body = "hello world"
-})
-
-router.get('/api', ctx => {
-    ctx.body = "hello api"
-})
+const isDevMode = process.env.NODE_ENV === 'production' ? false : true
 
 
+// 使用koa-compose 集成中间件
+const middleware = compose([
+    koaBody(),
+    statics(path.join(__dirname, '../public')),
+    cors(),
+    jsonUtil({pretty: false, param: 'pretty'}),
+    helmet()
+])
 
-router.get('/async', async (ctx) => {
-    let result = await new Promise((resolve) => {
-        setTimeout(function() {
-            resolve('hello world 2s later!!!')
-        }, 2000)
-    })
-    ctx.body = result
-})
+if(!isDevMode) {
+    app.use(compress())
+}
 
-// app.use(async ctx => {
-//     ctx.body = "hello world"
-// })
-
-router.post('/post', async (ctx) => {
-    let { body } = ctx.request
-    console.log(body)
-    console.log(ctx.request)
-    ctx.body = {
-        ...body
-    }
-})
-
-app.use(koaBody)
-app.use(cors)
-app.use(json({ pretty: false, param: 'pretty' }))
-
-app.use(router.routes())
-    .use(router.allowedMethods())
+app.use(middleware)
+app.use(router())
 
 app.listen(3000)
