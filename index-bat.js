@@ -8,7 +8,7 @@ const app = new Koa()
 const router = new Router()
 
 // 添加访问前缀
-router.prefix('/api')
+// router.prefix('/api')
 
 
 router.get('/', ctx => {
@@ -43,8 +43,8 @@ router.post('/post', async (ctx) => {
     }
 })
 
-app.use(koaBody)
-app.use(cors)
+// app.use(koaBody) 导致node found
+// app.use(cors)  导致 node found
 app.use(json({ pretty: false, param: 'pretty' }))
 
 app.use(router.routes())

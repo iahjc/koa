@@ -3,14 +3,9 @@ import svgCaptcha from 'svg-captcha'
 class PublicController {
     constructor() {}
     async getCaptcha(ctx) {
-        // console.log(1)
-        // const newCaptca = svgCaptcha.create({})
-        // console.log(newCaptca)
-        // ctx.body = {
-        //     msg: newCaptca.data
-        // }
+        const newCaptca = svgCaptcha.create({})
         ctx.body = {
-            msg: 'body message'
+            msg: newCaptca.data
         }
     }
 }
